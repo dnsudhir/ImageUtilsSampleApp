@@ -2,6 +2,7 @@ package dnsudhir.com.imageutlssampleapp;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.AlertDialog;
@@ -15,14 +16,23 @@ public class MainActivity extends AppCompatActivity {
 
   private ImageView iv;
   private ImageUtils imageUtils;
+  private SharedPreferences sharedPreferences;
 
   @Override protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_main);
 
     iv = (ImageView) findViewById(R.id.iv);
-
     imageUtils = new ImageUtils(this);
+
+    sharedPreferences = getSharedPreferences("prefs", MODE_PRIVATE);
+
+    if (!sharedPreferences.getString(ImageUtils.TAG_IMAGE_PREF, "").contentEquals("")) {
+      iv.setImageBitmap(imageUtils.getImgFromPrefs("prefs"));
+    }else {
+      iv.setImageResource(R.mipmap.ic_launcher_round);
+    }
+
 
     iv.setOnClickListener(new View.OnClickListener() {
       @Override public void onClick(View view) {
@@ -30,7 +40,6 @@ public class MainActivity extends AppCompatActivity {
         String[] builderMenu = new String[] {"Select Picture","Capture Photo"};
         builder.setItems(builderMenu, new DialogInterface.OnClickListener() {
           @Override public void onClick(DialogInterface dialogInterface, int i) {
-            imageUtils.setActivityObserver();
             switch (i) {
               case 0:
                 imageUtils.chooseImage();
@@ -39,11 +48,9 @@ public class MainActivity extends AppCompatActivity {
                 imageUtils.captureCamera();
                 break;
             }
-
           }
         });
         builder.show();
-
       }
     });
   }
@@ -52,9 +59,11 @@ public class MainActivity extends AppCompatActivity {
     super.onActivityResult(requestCode, resultCode, data);
 
     if (requestCode == ImageUtils.SET_IMAGE && resultCode == RESULT_OK && data != null) {
-      imageUtils.onActivityResult(requestCode,resultCode,data,null,null,"prefs",MODE_PRIVATE);
+      imageUtils.onActivityResult(requestCode,resultCode,data,"prefs");
+      iv.setImageBitmap(imageUtils.getImageBitMap());
     } else if (requestCode == ImageUtils.TAKE_PICTURE && resultCode == RESULT_OK && data != null) {
-      imageUtils.onActivityResult(requestCode,resultCode,data,"","","prefs",MODE_PRIVATE);
+      imageUtils.onActivityResult(requestCode,resultCode,data,"prefs");
+      iv.setImageBitmap(imageUtils.getImageBitMap());
     }
 
   }

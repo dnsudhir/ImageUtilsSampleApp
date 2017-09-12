@@ -34,9 +34,9 @@ public class WebCall extends AsyncTask<Void, Void, String> {
     super.onPreExecute();
     progressDialog = ProgressDialog.show(context, "Please Wait", "Loading");
     if (requestBody != null) {
-      request = new Request.Builder().url(Config.URL_ROOT + URL).post(requestBody).build();
+      request = new Request.Builder().url(URL).post(requestBody).build();
     } else {
-      request = new Request.Builder().url(Config.URL_ROOT + URL).build();
+      request = new Request.Builder().url(URL).build();
     }
   }
 

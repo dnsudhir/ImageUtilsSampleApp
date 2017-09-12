@@ -26,6 +26,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import okhttp3.FormBody;
 import okhttp3.RequestBody;
 import org.json.JSONException;
@@ -35,12 +37,16 @@ public class ImageUtils implements ActivityResultObserver {
 
   public static final int TAKE_PICTURE = 16;
   public static final int SET_IMAGE = 17;
-  public ActivityResultObserver activityResultObserver;
   private Context context;
   private Bitmap bitmap;
+  private String fileLocation;
+  public static String TAG_IMAGE_PREF = "image_pref";
 
   public ImageUtils(Context context) {
     this.context = context;
+    ContextWrapper contextWrapper = new ContextWrapper(context);
+    File file = contextWrapper.getDir("imageDir", Context.MODE_PRIVATE);
+    fileLocation = file.toString();
   }
 
   @RequiresApi(api = Build.VERSION_CODES.KITKAT)
@@ -87,7 +93,6 @@ public class ImageUtils implements ActivityResultObserver {
         final String[] selectionArgs = new String[] {
             split[1]
         };
-
         return getDataColumn(context, contentUri, selection, selectionArgs);
       }
     }
@@ -169,10 +174,6 @@ public class ImageUtils implements ActivityResultObserver {
     return "com.google.android.apps.photos.content".equals(uri.getAuthority());
   }
 
-  public void setActivityObserver() {
-    activityResultObserver = this;
-  }
-
   public void chooseImage() {
     if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
       Intent intent = new Intent();
@@ -193,20 +194,21 @@ public class ImageUtils implements ActivityResultObserver {
   }
 
   @RequiresApi(api = Build.VERSION_CODES.KITKAT) @Override
-  public void onActivityResult(int requestCode, int resultCode, Intent data, String fileName,
-      String fileLocation, String prefs, int prefMode) {
+  public void onActivityResult(int requestCode, int resultCode, Intent data, String prefs) {
     if (requestCode == SET_IMAGE && resultCode == Activity.RESULT_OK && data != null) {
-      fileLocation = getPath(context, data.getData());
-      saveImgLocInPrefs(fileLocation, prefs, prefMode);
+      this.fileLocation = getPath(context, data.getData());
+      saveImgLocInPrefs(this.fileLocation, prefs);
       bitmap = getFromFileName(fileLocation);
     } else if (requestCode == TAKE_PICTURE && resultCode == Activity.RESULT_OK && data != null) {
       bitmap = (Bitmap) data.getExtras().get("data");
-      saveImage(bitmap, fileLocation, fileName);
-      saveImgLocInPrefs("/data/data/qubag.com.qubagdeliveryapp/app_data/imageDir/"+ fileName, prefs, prefMode);
+      String fileName =
+          "photo_" + new SimpleDateFormat("yyyyMMdd_HH_mm_ss").format(new Date()) + ".jpg";
+      saveImage(bitmap, fileName);
+      saveImgLocInPrefs(this.fileLocation+"/"+ fileName, prefs);
     }
   }
 
-  private void saveImage(Bitmap bitmap, String fileLocation, String fileName) {
+  private void saveImage(Bitmap bitmap, String fileName) {
     ContextWrapper cw = new ContextWrapper(context);
     File directory = cw.getDir("imageDir", Context.MODE_PRIVATE);
     File outputFile = new File(directory, fileName);
@@ -220,14 +222,16 @@ public class ImageUtils implements ActivityResultObserver {
     }
   }
 
-  private Bitmap getFromFileName(String fileName) {
+  public Bitmap getFromFileName(String fileName) {
     Bitmap bitmap = null;
     File imageFile = new File(fileName);
-    try {
-      FileInputStream fis = new FileInputStream(imageFile);
-      bitmap = BitmapFactory.decodeStream(fis);
-    } catch (FileNotFoundException e) {
-      e.printStackTrace();
+    if (imageFile.exists()) {
+      try {
+        FileInputStream fis = new FileInputStream(imageFile);
+        bitmap = BitmapFactory.decodeStream(fis);
+      } catch (FileNotFoundException e) {
+        e.printStackTrace();
+      }
     }
     return bitmap;
   }
@@ -236,21 +240,22 @@ public class ImageUtils implements ActivityResultObserver {
     return bitmap;
   }
 
-  private void saveImgLocInPrefs(String fileLocation, String preferences, int mode) {
-    SharedPreferences sharedPreferences = context.getSharedPreferences(preferences, mode);
+  private void saveImgLocInPrefs(String fileLocation, String preferences) {
+    SharedPreferences sharedPreferences =
+        context.getSharedPreferences(preferences, Context.MODE_PRIVATE);
     SharedPreferences.Editor editor = sharedPreferences.edit();
-    editor.putString("", fileLocation).apply();
+    editor.putString(TAG_IMAGE_PREF, fileLocation).apply();
   }
 
-  public Bitmap getImgFromPrefs(String IMAGE_NAME,String preferences, int mode) {
-    SharedPreferences sharedPreferences = context.getSharedPreferences(preferences, mode);
-    return getFromFileName(sharedPreferences.getString(IMAGE_NAME, ""));
+  public Bitmap getImgFromPrefs(String preferences) {
+    SharedPreferences sharedPreferences =
+        context.getSharedPreferences(preferences, Context.MODE_PRIVATE);
+    return getFromFileName(sharedPreferences.getString(TAG_IMAGE_PREF, ""));
   }
 
-  public void sendImageToServer(String url,String cust_id) {
+  public void sendImageToServer(String url, String cust_id) {
     String imgString = getEncoded64ImageStringFromBitmap(bitmap);
-    RequestBody requestBody = new FormBody.Builder()
-        .add("",cust_id).add("",imgString).build();
+    RequestBody requestBody = new FormBody.Builder().add("", cust_id).add("", imgString).build();
     WebCall webCall = new WebCall(context, requestBody, url);
     webCall.checkSetExecute(webCall, new OnCallComplete() {
       @Override public void CallCompleted(boolean b, String result) {
@@ -269,14 +274,6 @@ public class ImageUtils implements ActivityResultObserver {
     bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
     byte[] byteFormat = stream.toByteArray();
     return Base64.encodeToString(byteFormat, Base64.DEFAULT);
-  }
-
-  public Uri setImageUri() {
-    ContextWrapper cw = new ContextWrapper(context);
-    File directory = cw.getDir("imageDir", Context.MODE_PRIVATE);
-    File file = new File(directory, System.currentTimeMillis() + ".png");
-    Uri imgUri = Uri.fromFile(file);
-    return imgUri;
   }
 }
 
