@@ -33,7 +33,7 @@ import okhttp3.RequestBody;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class ImageUtils implements ActivityResultObserver {
+public class ProfilePicSetter implements ActivityResultObserver {
 
   public static final int TAKE_PICTURE = 16;
   public static final int SET_IMAGE = 17;
@@ -42,7 +42,7 @@ public class ImageUtils implements ActivityResultObserver {
   private String fileLocation;
   public static String TAG_IMAGE_PREF = "image_pref";
 
-  public ImageUtils(Context context) {
+  public ProfilePicSetter(Context context) {
     this.context = context;
     ContextWrapper contextWrapper = new ContextWrapper(context);
     File file = contextWrapper.getDir("imageDir", Context.MODE_PRIVATE);

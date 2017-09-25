@@ -10,12 +10,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
-import dnsudhir.com.imageutlssampleapp.image_utils.ImageUtils;
+import dnsudhir.com.imageutlssampleapp.image_utils.ProfilePicSetter;
 
 public class MainActivity extends AppCompatActivity {
 
   private ImageView iv;
-  private ImageUtils imageUtils;
+  private ProfilePicSetter profilePicSetter;
   private SharedPreferences sharedPreferences;
 
   @Override protected void onCreate(Bundle savedInstanceState) {
@@ -23,12 +23,11 @@ public class MainActivity extends AppCompatActivity {
     setContentView(R.layout.activity_main);
 
     iv = (ImageView) findViewById(R.id.iv);
-    imageUtils = new ImageUtils(this);
-
+    profilePicSetter = new ProfilePicSetter(this);
     sharedPreferences = getSharedPreferences("prefs", MODE_PRIVATE);
 
-    if (!sharedPreferences.getString(ImageUtils.TAG_IMAGE_PREF, "").contentEquals("")) {
-      iv.setImageBitmap(imageUtils.getImgFromPrefs("prefs"));
+    if (!sharedPreferences.getString(ProfilePicSetter.TAG_IMAGE_PREF, "").contentEquals("")) {
+      iv.setImageBitmap(profilePicSetter.getImgFromPrefs("prefs"));
     }else {
       iv.setImageResource(R.mipmap.ic_launcher_round);
     }
@@ -42,10 +41,10 @@ public class MainActivity extends AppCompatActivity {
           @Override public void onClick(DialogInterface dialogInterface, int i) {
             switch (i) {
               case 0:
-                imageUtils.chooseImage();
+                profilePicSetter.chooseImage();
                 break;
               case 1:
-                imageUtils.captureCamera();
+                profilePicSetter.captureCamera();
                 break;
             }
           }
@@ -58,12 +57,12 @@ public class MainActivity extends AppCompatActivity {
   @RequiresApi(api = Build.VERSION_CODES.KITKAT) @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     super.onActivityResult(requestCode, resultCode, data);
 
-    if (requestCode == ImageUtils.SET_IMAGE && resultCode == RESULT_OK && data != null) {
-      imageUtils.onActivityResult(requestCode,resultCode,data,"prefs");
-      iv.setImageBitmap(imageUtils.getImageBitMap());
-    } else if (requestCode == ImageUtils.TAKE_PICTURE && resultCode == RESULT_OK && data != null) {
-      imageUtils.onActivityResult(requestCode,resultCode,data,"prefs");
-      iv.setImageBitmap(imageUtils.getImageBitMap());
+    if (requestCode == ProfilePicSetter.SET_IMAGE && resultCode == RESULT_OK && data != null) {
+      profilePicSetter.onActivityResult(requestCode,resultCode,data,"prefs");
+      iv.setImageBitmap(profilePicSetter.getImageBitMap());
+    } else if (requestCode == ProfilePicSetter.TAKE_PICTURE && resultCode == RESULT_OK && data != null) {
+      profilePicSetter.onActivityResult(requestCode,resultCode,data,"prefs");
+      iv.setImageBitmap(profilePicSetter.getImageBitMap());
     }
 
   }
