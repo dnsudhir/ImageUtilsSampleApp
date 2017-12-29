@@ -21,6 +21,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Base64;
 import android.widget.ImageView;
 import android.widget.Toast;
+import dnsudhir.com.imageutlssampleapp.R;
 import dnsudhir.com.imageutlssampleapp.interfaces.ActivityResultObserver;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -36,19 +37,37 @@ public class ProfilePicSetter implements ActivityResultObserver {
   public static final int TAKE_PICTURE = 16;
   public static final int SET_IMAGE = 17;
   private Context context;
+  private String prefString;
   private String fileLocation;
+  private String imageDir = "imageDir";
   public static String TAG_IMAGE_PREF = "image_pref";
   private ImageView profilePic;
 
-  public ProfilePicSetter(Context context) {
+  private SharedPreferences sharedPreferences;
+  private SharedPreferences.Editor editor;
+
+  public ProfilePicSetter(Context context, String prefString) {
     this.context = context;
+    this.prefString = prefString;
     ContextWrapper contextWrapper = new ContextWrapper(context);
-    File file = contextWrapper.getDir("imageDir", Context.MODE_PRIVATE);
+    File file = contextWrapper.getDir(imageDir, Context.MODE_PRIVATE);
     fileLocation = file.toString();
+
+    sharedPreferences = context.getSharedPreferences(prefString, Context.MODE_PRIVATE);
+    editor = sharedPreferences.edit();
+  }
+
+  private void load() {
+    if (!sharedPreferences.getString(ProfilePicSetter.TAG_IMAGE_PREF, "").contentEquals("")) {
+      profilePic.setImageBitmap(getFromFileName(fileLocation));
+    } else {
+      profilePic.setImageResource(R.mipmap.ic_launcher_round);
+    }
   }
 
   public void setImageView(ImageView profilePic) {
     this.profilePic = profilePic;
+    load();
     setOnClick();
   }
 
