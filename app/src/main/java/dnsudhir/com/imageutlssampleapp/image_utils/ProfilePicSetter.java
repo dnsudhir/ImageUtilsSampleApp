@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -15,11 +16,12 @@ import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.support.annotation.RequiresApi;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Base64;
+import android.widget.ImageView;
 import android.widget.Toast;
 import dnsudhir.com.imageutlssampleapp.interfaces.ActivityResultObserver;
-import dnsudhir.com.imageutlssampleapp.interfaces.OnCallComplete;
-import dnsudhir.com.imageutlssampleapp.network.WebCall;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -28,25 +30,44 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import okhttp3.FormBody;
-import okhttp3.RequestBody;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 public class ProfilePicSetter implements ActivityResultObserver {
 
   public static final int TAKE_PICTURE = 16;
   public static final int SET_IMAGE = 17;
   private Context context;
-  private Bitmap bitmap;
   private String fileLocation;
   public static String TAG_IMAGE_PREF = "image_pref";
+  private ImageView profilePic;
 
   public ProfilePicSetter(Context context) {
     this.context = context;
     ContextWrapper contextWrapper = new ContextWrapper(context);
     File file = contextWrapper.getDir("imageDir", Context.MODE_PRIVATE);
     fileLocation = file.toString();
+  }
+
+  public void setImageView(ImageView profilePic) {
+    this.profilePic = profilePic;
+    setOnClick();
+  }
+
+  private void setOnClick() {
+    AlertDialog.Builder builder = new AlertDialog.Builder(context);
+    String[] builderMenu = new String[] { "Select Picture", "Capture Photo" };
+    builder.setItems(builderMenu, new DialogInterface.OnClickListener() {
+      @Override public void onClick(DialogInterface dialogInterface, int i) {
+        switch (i) {
+          case 0:
+            chooseImage();
+            break;
+          case 1:
+            captureCamera();
+            break;
+        }
+      }
+    });
+    builder.show();
   }
 
   @RequiresApi(api = Build.VERSION_CODES.KITKAT)
@@ -179,10 +200,10 @@ public class ProfilePicSetter implements ActivityResultObserver {
       Intent intent = new Intent();
       intent.setType("image/*");
       intent.setAction(Intent.ACTION_PICK);
-      ((Activity) context).startActivityForResult(Intent.createChooser(intent, "Select Picture:"),
-          SET_IMAGE);
+      ((AppCompatActivity) context).startActivityForResult(
+          Intent.createChooser(intent, "Select Picture:"), SET_IMAGE);
     } else {
-      Toast.makeText(context, "Please Mount Any Media And Try Again", Toast.LENGTH_SHORT).show();
+      Toast.makeText(context, "Please Mount Any Storage And Try Again", Toast.LENGTH_SHORT).show();
     }
   }
 
@@ -198,14 +219,16 @@ public class ProfilePicSetter implements ActivityResultObserver {
     if (requestCode == SET_IMAGE && resultCode == Activity.RESULT_OK && data != null) {
       this.fileLocation = getPath(context, data.getData());
       saveImgLocInPrefs(this.fileLocation, prefs);
-      bitmap = getFromFileName(fileLocation);
+      Bitmap bitmap = getFromFileName(fileLocation);
     } else if (requestCode == TAKE_PICTURE && resultCode == Activity.RESULT_OK && data != null) {
-      bitmap = (Bitmap) data.getExtras().get("data");
+      Bitmap bitmap = (Bitmap) data.getExtras().get("data");
       String fileName =
           "photo_" + new SimpleDateFormat("yyyyMMdd_HH_mm_ss").format(new Date()) + ".jpg";
       saveImage(bitmap, fileName);
-      saveImgLocInPrefs(this.fileLocation+"/"+ fileName, prefs);
+      saveImgLocInPrefs(this.fileLocation + "/" + fileName, prefs);
     }
+
+    profilePic.setImageBitmap(getFromFileName(this.fileLocation));
   }
 
   private void saveImage(Bitmap bitmap, String fileName) {
@@ -236,10 +259,6 @@ public class ProfilePicSetter implements ActivityResultObserver {
     return bitmap;
   }
 
-  public Bitmap getImageBitMap() {
-    return bitmap;
-  }
-
   private void saveImgLocInPrefs(String fileLocation, String preferences) {
     SharedPreferences sharedPreferences =
         context.getSharedPreferences(preferences, Context.MODE_PRIVATE);
@@ -251,22 +270,6 @@ public class ProfilePicSetter implements ActivityResultObserver {
     SharedPreferences sharedPreferences =
         context.getSharedPreferences(preferences, Context.MODE_PRIVATE);
     return getFromFileName(sharedPreferences.getString(TAG_IMAGE_PREF, ""));
-  }
-
-  public void sendImageToServer(String url, String cust_id) {
-    String imgString = getEncoded64ImageStringFromBitmap(bitmap);
-    RequestBody requestBody = new FormBody.Builder().add("", cust_id).add("", imgString).build();
-    WebCall webCall = new WebCall(context, requestBody, url);
-    webCall.checkSetExecute(webCall, new OnCallComplete() {
-      @Override public void CallCompleted(boolean b, String result) {
-        try {
-          JSONObject jsonObject = new JSONObject(result);
-          Toast.makeText(context, jsonObject.optString(""), Toast.LENGTH_SHORT).show();
-        } catch (JSONException e) {
-          e.printStackTrace();
-        }
-      }
-    });
   }
 
   private String getEncoded64ImageStringFromBitmap(Bitmap bitmap) {
