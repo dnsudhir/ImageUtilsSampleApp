@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.ImageView;
 import dnsudhir.com.imageutlssampleapp.image_utils.ProfilePicSetter;
+import java.io.FileNotFoundException;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -16,7 +17,11 @@ public class MainActivity extends AppCompatActivity {
 
     ImageView iv = findViewById(R.id.iv);
     profilePicSetter = new ProfilePicSetter(this, "prefs");
-    profilePicSetter.setImageView(iv);
+    try {
+      profilePicSetter.setImageView(iv);
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+    }
   }
 
   @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {

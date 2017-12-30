@@ -9,16 +9,13 @@ import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 
-public class Path {
+class Path {
 
-  private Context context;
+  Path() {
 
-  public Path(Context context) {
-
-    this.context = context;
   }
 
-  protected String getPath(final Context context, final Uri uri) {
+  String getPath(final Context context, final Uri uri) {
 
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && DocumentsContract.isDocumentUri(
         context, uri)) {

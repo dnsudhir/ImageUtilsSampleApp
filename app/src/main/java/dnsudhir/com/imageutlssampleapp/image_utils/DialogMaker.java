@@ -10,20 +10,18 @@ public class DialogMaker {
   private String[] builderMenu = { "Select Picture", "Capture Photo" };
 
   private AlertDialog.Builder builder;
-  private String prefString;
-  protected ChooseImage chooseImage;
-  protected CaptureCamera captureCamera;
+  ChooseImage chooseImage;
+  CaptureCamera captureCamera;
   private ImageView profilePic;
 
-  public DialogMaker(Context context, ImageView profilePic, String prefString) {
+  DialogMaker(Context context, String prefString, ImageView profilePic) {
     builder = new AlertDialog.Builder(context);
-    this.prefString = prefString;
     chooseImage = new ChooseImage(context, prefString);
     captureCamera = new CaptureCamera(context, prefString);
     this.profilePic = profilePic;
   }
 
-  public void makeDialog() {
+  void makeDialog() {
     builder.setItems(builderMenu, new DialogInterface.OnClickListener() {
 
       @Override public void onClick(DialogInterface dialog, int which) {
@@ -42,9 +40,5 @@ public class DialogMaker {
 
   public void setDialogItems(String[] builderMenu) {
     this.builderMenu = builderMenu;
-  }
-
-  public void setDialogItem(String item, int itemPosition) {
-    builderMenu[itemPosition] = item;
   }
 }

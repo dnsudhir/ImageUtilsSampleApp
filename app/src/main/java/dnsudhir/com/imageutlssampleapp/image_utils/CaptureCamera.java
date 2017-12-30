@@ -16,20 +16,15 @@ import static dnsudhir.com.imageutlssampleapp.image_utils.ProfilePicSetter.TAKE_
 public class CaptureCamera implements ActivityResultObserver {
 
   private SaveImage saveImage;
-  private GetImage getImage;
   private Context context;
-  private String prefString;
   private ImageView profilePic;
-  private String fileLocation;
 
-  public CaptureCamera(Context context,String prefString) {
+  CaptureCamera(Context context, String prefString) {
     this.context = context;
-    this.prefString = prefString;
-    saveImage = new SaveImage(context,prefString);
-    getImage = new GetImage();
+    saveImage = new SaveImage(context, prefString);
   }
 
-  public void capture(ImageView profilePic) {
+  void capture(ImageView profilePic) {
     this.profilePic = profilePic;
     Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
     if (takePictureIntent.resolveActivity(context.getPackageManager()) != null) {
@@ -45,12 +40,11 @@ public class CaptureCamera implements ActivityResultObserver {
 
       ContextWrapper contextWrapper = new ContextWrapper(context);
       File file = contextWrapper.getDir("imageDir", Context.MODE_PRIVATE);
-      fileLocation = file.toString();
+      String fileLocation = file.toString();
       fileLocation = fileLocation + "/" + fileName;
       saveImage.save(bitmap, fileName);
       saveImage.saveLocationInPrefs(fileLocation);
-
-      profilePic.setImageBitmap(getImage.getFromFileName(fileLocation));
+      profilePic.setImageBitmap(bitmap);
     }
   }
 }

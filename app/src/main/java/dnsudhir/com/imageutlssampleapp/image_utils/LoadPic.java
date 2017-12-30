@@ -2,24 +2,25 @@ package dnsudhir.com.imageutlssampleapp.image_utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.widget.ImageView;
 import dnsudhir.com.imageutlssampleapp.R;
+import java.io.FileNotFoundException;
 
-public class LoadPic   {
+class LoadPic {
 
-  private SharedPreferences sharedPreferences;
-  private GetImage getImage;
-  private String fileLocation;
-
-  public LoadPic(Context context, String prefString) {
+  static void load(Context context, String prefString, ImageView profilePic)
+      throws FileNotFoundException {
+    SharedPreferences sharedPreferences;
     sharedPreferences = context.getSharedPreferences(prefString, Context.MODE_PRIVATE);
-    getImage = new GetImage();
-  }
-
-  public void load(ImageView profilePic) {
-    fileLocation = sharedPreferences.getString(ProfilePicSetter.TAG_IMAGE_PREF, "");
+    String fileLocation = sharedPreferences.getString(ProfilePicSetter.TAG_IMAGE_PREF, "");
     if (!fileLocation.contentEquals("")) {
-      profilePic.setImageBitmap(getImage.getFromFileName(this.fileLocation));
+      Bitmap bitmap = GetImage.getFromFileName(fileLocation);
+      if (bitmap != null) {
+        profilePic.setImageBitmap(bitmap);
+      } else {
+        profilePic.setImageResource(R.mipmap.ic_launcher_round);
+      }
     } else {
       profilePic.setImageResource(R.mipmap.ic_launcher_round);
     }
