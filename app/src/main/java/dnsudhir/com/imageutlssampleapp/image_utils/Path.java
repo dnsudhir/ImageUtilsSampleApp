@@ -8,12 +8,14 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
-import android.support.annotation.RequiresApi;
 
-public class Path extends ProfilePicSetter {
+public class Path {
 
-  public Path(Context context, String prefString) {
-    super(context, prefString);
+  private Context context;
+
+  public Path(Context context) {
+
+    this.context = context;
   }
 
   protected String getPath(final Context context, final Uri uri) {

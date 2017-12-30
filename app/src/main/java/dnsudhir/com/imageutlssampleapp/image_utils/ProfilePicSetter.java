@@ -5,6 +5,7 @@ import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 import java.io.File;
@@ -22,7 +23,6 @@ public class ProfilePicSetter implements ActivityResultObserver {
 
   private SharedPreferences sharedPreferences;
   private SharedPreferences.Editor editor;
-
   private DialogMaker dialogMaker;
   private LoadPic loadPic;
 
@@ -35,9 +35,6 @@ public class ProfilePicSetter implements ActivityResultObserver {
 
     sharedPreferences = context.getSharedPreferences(prefString, Context.MODE_PRIVATE);
     editor = sharedPreferences.edit();
-
-    dialogMaker = new DialogMaker(context, prefString);
-    loadPic = new LoadPic(context, prefString);
   }
 
   public ProfilePicSetter(Context context, String prefString, ImageView profilePic) {
@@ -50,17 +47,18 @@ public class ProfilePicSetter implements ActivityResultObserver {
 
     sharedPreferences = context.getSharedPreferences(prefString, Context.MODE_PRIVATE);
     editor = sharedPreferences.edit();
-
-    dialogMaker = new DialogMaker(context, prefString);
-    loadPic = new LoadPic(context, prefString);
-    loadPic.load();
-    dialogMaker.makeDialog();
   }
 
   public void setImageView(ImageView profilePic) {
     this.profilePic = profilePic;
-    loadPic.load();
-    dialogMaker.makeDialog();
+    dialogMaker = new DialogMaker(context, profilePic);
+    loadPic = new LoadPic(context, prefString);
+    loadPic.load(profilePic);
+    this.profilePic.setOnClickListener(new View.OnClickListener() {
+      @Override public void onClick(View v) {
+        dialogMaker.makeDialog();
+      }
+    });
   }
 
   @Override public void onActivityResult(int requestCode, int resultCode, Intent data) {

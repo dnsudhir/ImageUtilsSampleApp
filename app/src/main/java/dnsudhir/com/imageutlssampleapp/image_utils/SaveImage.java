@@ -8,15 +8,14 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-public class SaveImage extends ProfilePicSetter {
+public class SaveImage {
 
   private Context context;
   private SharedPreferences sharedPreferences;
   private SharedPreferences.Editor editor;
 
-  public SaveImage(Context context, String prefString) {
-    super(context, prefString);
-    sharedPreferences = context.getSharedPreferences(prefString, Context.MODE_PRIVATE);
+  public SaveImage(Context context) {
+    //sharedPreferences = context.getSharedPreferences(prefString, Context.MODE_PRIVATE);
   }
 
   public void save(Bitmap bitmap, String fileName) {

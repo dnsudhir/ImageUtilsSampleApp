@@ -5,24 +5,29 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
+import android.widget.ImageView;
 import android.widget.Toast;
 
-public class ChooseImage extends ProfilePicSetter implements ActivityResultObserver {
+import static dnsudhir.com.imageutlssampleapp.image_utils.ProfilePicSetter.SET_IMAGE;
+
+public class ChooseImage implements ActivityResultObserver {
 
   private Context context;
   private Path path;
   private GetImage getImage;
   private SaveImage saveImage;
+  private String fileLocation;
+  private ImageView profilePic;
 
-  public ChooseImage(Context context, String prefString) {
-    super(context, prefString);
+  public ChooseImage(Context context) {
     this.context = context;
-    path = new Path(context, prefString);
-    saveImage = new SaveImage(context, prefString);
+    path = new Path(context);
+    saveImage = new SaveImage(context);
     getImage = new GetImage();
   }
 
-  public void choose() {
+  public void choose(ImageView profilePic) {
+    this.profilePic = profilePic;
     if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
       Intent intent = new Intent();
       intent.setType("image/*");
