@@ -10,14 +10,16 @@ public class DialogMaker {
   private String[] builderMenu = { "Select Picture", "Capture Photo" };
 
   private AlertDialog.Builder builder;
+  private String prefString;
   protected ChooseImage chooseImage;
   protected CaptureCamera captureCamera;
   private ImageView profilePic;
 
-  public DialogMaker(Context context,ImageView profilePic) {
+  public DialogMaker(Context context, ImageView profilePic, String prefString) {
     builder = new AlertDialog.Builder(context);
-    chooseImage = new ChooseImage(context);
-    captureCamera = new CaptureCamera(context);
+    this.prefString = prefString;
+    chooseImage = new ChooseImage(context, prefString);
+    captureCamera = new CaptureCamera(context, prefString);
     this.profilePic = profilePic;
   }
 

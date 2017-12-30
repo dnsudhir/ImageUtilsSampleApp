@@ -14,15 +14,17 @@ public class ChooseImage implements ActivityResultObserver {
 
   private Context context;
   private Path path;
+  private String prefString;
   private GetImage getImage;
   private SaveImage saveImage;
   private String fileLocation;
   private ImageView profilePic;
 
-  public ChooseImage(Context context) {
+  public ChooseImage(Context context,String prefString) {
     this.context = context;
     path = new Path(context);
-    saveImage = new SaveImage(context);
+    this.prefString = prefString;
+    saveImage = new SaveImage(context,prefString);
     getImage = new GetImage();
   }
 

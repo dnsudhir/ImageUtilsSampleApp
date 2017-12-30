@@ -14,8 +14,9 @@ public class SaveImage {
   private SharedPreferences sharedPreferences;
   private SharedPreferences.Editor editor;
 
-  public SaveImage(Context context) {
-    //sharedPreferences = context.getSharedPreferences(prefString, Context.MODE_PRIVATE);
+  public SaveImage(Context context,String prefString) {
+    sharedPreferences = context.getSharedPreferences(prefString, Context.MODE_PRIVATE);
+    this.context = context;
   }
 
   public void save(Bitmap bitmap, String fileName) {

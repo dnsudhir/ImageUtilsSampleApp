@@ -1,11 +1,13 @@
 package dnsudhir.com.imageutlssampleapp.image_utils;
 
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.ImageView;
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -16,12 +18,14 @@ public class CaptureCamera implements ActivityResultObserver {
   private SaveImage saveImage;
   private GetImage getImage;
   private Context context;
+  private String prefString;
   private ImageView profilePic;
   private String fileLocation;
 
-  public CaptureCamera(Context context) {
+  public CaptureCamera(Context context,String prefString) {
     this.context = context;
-    saveImage = new SaveImage(context);
+    this.prefString = prefString;
+    saveImage = new SaveImage(context,prefString);
     getImage = new GetImage();
   }
 
@@ -38,8 +42,13 @@ public class CaptureCamera implements ActivityResultObserver {
       Bitmap bitmap = (Bitmap) data.getExtras().get("data");
       String fileName =
           "photo_" + new SimpleDateFormat("yyyyMMdd_HH_mm_ss").format(new Date()) + ".jpg";
+
+      ContextWrapper contextWrapper = new ContextWrapper(context);
+      File file = contextWrapper.getDir("imageDir", Context.MODE_PRIVATE);
+      fileLocation = file.toString();
+      fileLocation = fileLocation + "/" + fileName;
       saveImage.save(bitmap, fileName);
-      saveImage.saveLocationInPrefs(fileLocation + "/" + fileName);
+      saveImage.saveLocationInPrefs(fileLocation);
 
       profilePic.setImageBitmap(getImage.getFromFileName(fileLocation));
     }
