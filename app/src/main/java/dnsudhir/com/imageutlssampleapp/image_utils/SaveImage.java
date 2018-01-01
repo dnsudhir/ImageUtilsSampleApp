@@ -8,18 +8,17 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-public class SaveImage {
+class SaveImage {
 
   private Context context;
-  private SharedPreferences sharedPreferences;
-  private SharedPreferences.Editor editor;
+  private String prefString;
 
-  public SaveImage(Context context,String prefString) {
-    sharedPreferences = context.getSharedPreferences(prefString, Context.MODE_PRIVATE);
+  SaveImage(Context context, String prefString) {
     this.context = context;
+    this.prefString = prefString;
   }
 
-  public void save(Bitmap bitmap, String fileName) {
+  void save(Bitmap bitmap, String fileName) {
     ContextWrapper cw = new ContextWrapper(context);
     File directory = cw.getDir("imageDir", Context.MODE_PRIVATE);
     File outputFile = new File(directory, fileName);
@@ -33,12 +32,14 @@ public class SaveImage {
     }
   }
 
-  public void saveLocationInPrefs(String location) {
+  void saveLocationInPrefs(String location) {
     savePrefString(ProfilePicSetter.TAG_IMAGE_PREF, location);
   }
 
   private void savePrefString(String key, String value) {
-    editor = sharedPreferences.edit();
+    SharedPreferences sharedPreferences =
+        context.getSharedPreferences(prefString, Context.MODE_PRIVATE);
+    SharedPreferences.Editor editor = sharedPreferences.edit();
     editor.putString(key, value).apply();
   }
 }

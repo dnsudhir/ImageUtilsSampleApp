@@ -16,6 +16,7 @@ public class MainActivity extends AppCompatActivity {
     setContentView(R.layout.activity_main);
 
     ImageView iv = findViewById(R.id.iv);
+
     profilePicSetter = new ProfilePicSetter(this, "prefs");
     try {
       profilePicSetter.setImageView(iv);

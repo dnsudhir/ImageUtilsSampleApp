@@ -6,9 +6,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
-class GetImage {
+public class GetImage {
 
-  static Bitmap getFromFileName(String fileName) throws FileNotFoundException {
+  public static Bitmap getFromFileName(String fileName) throws FileNotFoundException {
     Bitmap bitmap = null;
     File imageFile = new File(fileName);
     if (imageFile.exists()) {

@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 import java.io.FileNotFoundException;
 
@@ -12,6 +13,7 @@ public class ProfilePicSetter implements ActivityResultObserver {
 
   static final int TAKE_PICTURE = 16;
   static final int SET_IMAGE = 17;
+  static final int OPEN_FOR_CROP = 22;
   private Context context;
   private String prefString;
   static String TAG_IMAGE_PREF = "image_pref";
@@ -38,6 +40,8 @@ public class ProfilePicSetter implements ActivityResultObserver {
       }
     });
   }
+
+
 
   @Override public void onActivityResult(int requestCode, int resultCode, Intent data) {
     if (requestCode == SET_IMAGE && resultCode == AppCompatActivity.RESULT_OK && data != null) {

@@ -9,8 +9,10 @@ import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.ImageView;
 import android.widget.Toast;
+import dnsudhir.com.imageutlssampleapp.CropImageActivity;
 import java.io.FileNotFoundException;
 
+import static dnsudhir.com.imageutlssampleapp.image_utils.ProfilePicSetter.OPEN_FOR_CROP;
 import static dnsudhir.com.imageutlssampleapp.image_utils.ProfilePicSetter.SET_IMAGE;
 
 public class ChooseImage implements ActivityResultObserver {
@@ -52,7 +54,7 @@ public class ChooseImage implements ActivityResultObserver {
         e.printStackTrace();
       }
     } else if (requestCode == SET_IMAGE && resultCode == AppCompatActivity.RESULT_CANCELED) {
-      Toast.makeText(context, "Operation Cancelled, Please Try Again", Toast.LENGTH_SHORT).show();
+      Toast.makeText(context, "Operation Cancelled", Toast.LENGTH_SHORT).show();
     } else if (requestCode == SET_IMAGE && data == null) {
       Toast.makeText(context, "Failed To Retrieve Data, Please Try Again", Toast.LENGTH_SHORT)
           .show();
@@ -65,4 +67,13 @@ public class ChooseImage implements ActivityResultObserver {
     SharedPreferences.Editor editor = sharedPreferences.edit();
     editor.putString(key, value).apply();
   }
+
+  private void startCropActivity(String fileLocation) {
+    Intent cropIntent =
+        new Intent(context, CropImageActivity.class);
+    cropIntent.putExtra("IMAGE_PATH", fileLocation);
+    ((AppCompatActivity)context).startActivityForResult(cropIntent, OPEN_FOR_CROP);
+
+  }
+
 }
